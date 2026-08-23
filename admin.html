@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Loyiha Qo'shish</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #1e293b; padding: 2rem; border-radius: 8px; width: 100%; max-width: 400px; }
+        input, textarea, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 4px; border: 1px solid #334155; box-sizing: border-box; }
+        button { background: #3b82f6; color: white; font-weight: bold; border: none; cursor: pointer; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- Login Forma -->
+        <div id="login-box">
+            <h2>Admin Kirish</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Parol">
+            <button onclick="login()">Kirish</button>
+        </div>
+
+        <!-- Loyiha Qo'shish Formasi -->
+        <div id="admin-box" class="hidden">
+            <h2>Yangi Loyiha Qo'shish</h2>
+            <input type="text" id="title" placeholder="Loyiha nomi">
+            <input type="text" id="tech" placeholder="Texnologiyalar (masalan: React, Node.js)">
+            <textarea id="desc" placeholder="Loyiha haqida qisqacha"></textarea>
+            <input type="text" id="github" placeholder="GitHub Havolasi">
+            <input type="text" id="demo" placeholder="Live Demo Havolasi">
+            <button onclick="addProject()">Loyihani Saqlash 🚀</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AiZaSyA7PKYEX55qjNWaIsVHzKw-egyFNYnZeJI",
+            authDomain: "ibrohim-portfolio.firebaseapp.com",
+            projectId: "ibrohim-portfolio",
+            storageBucket: "ibrohim-portfolio.firebasestorage.app",
+            messagingSenderId: "99618778986",
+            appId: "1:99618778986:web:6b0cd2d7b9540e6671bf13",
+            measurementId: "G-JE0WVW1B3Y"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.login = async () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            try {
+                await signInWithEmailAndPassword(auth, e, p);
+                document.getElementById('login-box').classList.add('hidden');
+                document.getElementById('admin-box').classList.remove('hidden');
+                alert("Xush kelibsiz, Admin!");
+            } catch (err) { alert("Xatolik: " + err.message); }
+        };
+
+        window.addProject = async () => {
+            try {
+                await addDoc(collection(db, "projects"), {
+                    title: document.getElementById('title').value,
+                    tech: document.getElementById('tech').value,
+                    desc: document.getElementById('desc').value,
+                    github: document.getElementById('github').value,
+                    demo: document.getElementById('demo').value,
+                    createdAt: new Date()
+                });
+                alert("Loyiha muvaffaqiyatli saqlandi!");
+            } catch (err) { alert("Saqlashda xatolik: " + err.message); }
+        };
+    </script>
+</body>
+</html>

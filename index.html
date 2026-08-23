@@ -67,33 +67,11 @@
         </div>
     </section>
 
-    <!-- Loyihalar -->
+   <!-- Loyihalar -->
     <section id="projects" class="section container">
         <h2>Saralangan Loyihalar</h2>
-        <div class="projects-grid">
-            
-            <!-- 1-Loyiha -->
-            <div class="project-card">
-                <div class="project-tags">React • Node.js • PostgreSQL</div>
-                <h3>Loyiha Nomi 1</h3>
-                <p>Loyiha haqida qisqacha ma'lumot: Qanday muammoni hal qiladi va nega yaratilgan.</p>
-                <div class="project-links">
-                    <a href="https://github.com/username/project" target="_blank">GitHub</a>
-                    <a href="#" target="_blank">Live Demo ↗</a>
-                </div>
-            </div>
-
-            <!-- 2-Loyiha -->
-            <div class="project-card">
-                <div class="project-tags">Python • Django • REST API</div>
-                <h3>Loyiha Nomi 2</h3>
-                <p>Loyiha haqida qisqacha ma'lumot: Asosiy funksionalligi va sizning undagi o'rningiz.</p>
-                <div class="project-links">
-                    <a href="https://github.com/username/project" target="_blank">GitHub</a>
-                    <a href="#" target="_blank">Live Demo ↗</a>
-                </div>
-            </div>
-
+        <div class="projects-grid" id="projects-container">
+            <!-- Admin paneldan qo'shilgan loyihalar Firebase orqali avtomatik shu yerga tushadi -->
         </div>
     </section>
 
@@ -113,5 +91,47 @@
     </footer>
 
     <script src="script.js"></script>
+    <!-- Firebase va Firestore ulash -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AiZaSyA7PKYEX55qjNWaIsVHzKw-egyFNYnZeJI",
+        authDomain: "ibrohim-portfolio.firebaseapp.com",
+        projectId: "ibrohim-portfolio",
+        storageBucket: "ibrohim-portfolio.firebasestorage.app",
+        messagingSenderId: "99618778986",
+        appId: "1:99618778986:web:6b0cd2d7b9540e6671bf13"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadProjects() {
+        const querySnapshot = await getDocs(collection(db, "projects"));
+        const container = document.getElementById("projects-container"); // HTML'dagi loyihalar o'ralgan container ID'si
+        
+        if (!container) return;
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const projectCard = `
+                <div class="project-card">
+                    <div class="project-tags">${data.tech}</div>
+                    <h3>${data.title}</h3>
+                    <p>${data.desc}</p>
+                    <div class="project-links">
+                        ${data.github ? `<a href="${data.github}" target="_blank">GitHub ↗</a>` : ''}
+                        ${data.demo ? `<a href="${data.demo}" target="_blank">Live Demo ↗</a>` : ''}
+                    </div>
+                </div>
+            `;
+            container.innerHTML += projectCard;
+        });
+    }
+
+    loadProjects();
+</script>
 </body>
 </html>
