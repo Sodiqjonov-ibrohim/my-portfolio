@@ -165,7 +165,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -182,29 +182,20 @@
     const db = getFirestore(app);
     let currentUser = null;
 
-    onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        const btn = document.getElementById('auth-btn');
-        if (user) {
-            btn.innerHTML = "➕ Loyiha Qo'shish";
-            btn.onclick = () => document.getElementById('project-modal').style.display = 'flex';
-        } else {
-            btn.innerHTML = "🔑 Admin Login";
-            btn.onclick = openLoginModal;
-        }
-        loadProjects();
-    });
-
+    // Window funksiyalari
     window.openLoginModal = () => document.getElementById('login-modal').style.display = 'flex';
     window.closeLoginModal = () => document.getElementById('login-modal').style.display = 'none';
 
     window.adminLogin = async () => {
-        const email = document.getElementById('modal-email').value;
-        const pass = document.getElementById('modal-pass').value;
+        const email = document.getElementById('modal-email').value.trim();
+        const pass = document.getElementById('modal-pass').value.trim();
         try {
             await signInWithEmailAndPassword(auth, email, pass);
-            closeLoginModal();
-        } catch (e) { alert("Xatolik: " + e.message); }
+            window.closeLoginModal();
+            alert("Tizimga muvaffaqiyatli kirdingiz!");
+        } catch (e) { 
+            alert("Xatolik: " + e.message); 
+        }
     };
 
     window.saveProject = async () => {
@@ -228,6 +219,19 @@
             loadProjects();
         }
     };
+
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        const btn = document.getElementById('auth-btn');
+        if (user) {
+            btn.innerHTML = "➕ Loyiha Qo'shish";
+            btn.onclick = () => document.getElementById('project-modal').style.display = 'flex';
+        } else {
+            btn.innerHTML = "🔑 Admin Login";
+            btn.onclick = window.openLoginModal;
+        }
+        loadProjects();
+    });
 
     async function loadProjects() {
         const querySnapshot = await getDocs(collection(db, "projects"));
@@ -253,12 +257,6 @@
             container.innerHTML += projectCard;
         });
     }
-
-    loadProjects();
-    // Global oyna bilan bog'lash (Window Scope)
-    window.adminLogin = adminLogin;
-    window.saveProject = saveProject;
-    window.deleteProject = deleteProject;
 </script>
 </body>
 </html>
