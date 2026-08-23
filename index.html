@@ -204,5 +204,146 @@
         }
     }
 </script>
+<!-- Admin Modal va Boshqaruv elementlari -->
+<div id="admin-controls" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+    <button id="auth-btn" style="padding: 10px 18px; border-radius: 20px; background: #0070f3; color: white; border: none; cursor: pointer; font-weight: bold;">🔑 Admin Login</button>
+</div>
+
+<!-- Login Modal -->
+<div id="login-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: #111; padding: 30px; border-radius: 12px; border: 1px solid #333; width: 320px;">
+        <h3 style="margin-top:0; color:white;">Admin Kirish</h3>
+        <input type="email" id="modal-email" placeholder="Email" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px;">
+        <input type="password" id="modal-pass" placeholder="Parol" style="width: 100%; padding: 10px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: white; border-radius: 6px;">
+        <button onclick="window.adminLogin()" style="width: 100%; padding: 10px; background: #0070f3; color: white; border: none; border-radius: 6px; cursor: pointer;">Kirish</button>
+        <button onclick="window.closeLoginModal()" style="width: 100%; padding: 8px; margin-top: 8px; background: transparent; color: #888; border: none; cursor: pointer;">Yopish</button>
+    </div>
+</div>
+
+<!-- Yangi Loyiha Qo'shish Modali -->
+<div id="project-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: #111; padding: 30px; border-radius: 12px; border: 1px solid #333; width: 400px;">
+        <h3 style="margin-top:0; color:white;">Yangi Loyiha Qo'shish</h3>
+        <input type="text" id="p-title" placeholder="Loyiha nomi" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px;">
+        <input type="text" id="p-tech" placeholder="Texnologiyalar (HTML, CSS, JS)" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px;">
+        <textarea id="p-desc" placeholder="Tavsif" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px; height: 80px;"></textarea>
+        <input type="text" id="p-github" placeholder="GitHub Link" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px;">
+        <input type="text" id="p-demo" placeholder="Demo Link" style="width: 100%; padding: 10px; margin-bottom: 15px; background: #222; border: 1px solid #444; color: white; border-radius: 6px;">
+        <button onclick="window.saveProject()" style="width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Saqlash 🚀</button>
+        <button onclick="window.closeProjectModal()" style="width: 100%; padding: 8px; margin-top: 8px; background: transparent; color: #888; border: none; cursor: pointer;">Bekor qilish</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA7PKYEX55qjNWaIsVHzKw-egyFNYnZeJI",
+        authDomain: "ibrohim-portfolio.firebaseapp.com",
+        projectId: "ibrohim-portfolio",
+        storageBucket: "ibrohim-portfolio.firebasestorage.app",
+        messagingSenderId: "99618778986",
+        appId: "1:99618778986:web:6b0cd2d7b9540e6671bf13"
+    };
+
+    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    let currentUser = null;
+
+    window.openLoginModal = () => {
+        document.getElementById('login-modal').style.display = 'flex';
+    };
+
+    window.closeLoginModal = () => {
+        document.getElementById('login-modal').style.display = 'none';
+    };
+
+    window.closeProjectModal = () => {
+        document.getElementById('project-modal').style.display = 'none';
+    };
+
+    window.adminLogin = async () => {
+        const email = document.getElementById('modal-email').value.trim();
+        const pass = document.getElementById('modal-pass').value.trim();
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            window.closeLoginModal();
+        } catch (e) {
+            alert("Xatolik: " + e.message);
+        }
+    };
+
+    window.saveProject = async () => {
+        try {
+            await addDoc(collection(db, "projects"), {
+                title: document.getElementById('p-title').value,
+                tech: document.getElementById('p-tech').value,
+                desc: document.getElementById('p-desc').value,
+                github: document.getElementById('p-github').value,
+                demo: document.getElementById('p-demo').value,
+                createdAt: new Date()
+            });
+            window.closeProjectModal();
+            loadProjects();
+        } catch (e) {
+            alert("Xatolik: " + e.message);
+        }
+    };
+
+    window.deleteProject = async (id) => {
+        if (confirm("Ushbu loyihani o'chirmoqchimisiz?")) {
+            await deleteDoc(doc(db, "projects", id));
+            loadProjects();
+        }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        const btn = document.getElementById('auth-btn');
+        if (btn) {
+            if (user) {
+                btn.innerHTML = "➕ Loyiha Qo'shish";
+                btn.onclick = () => document.getElementById('project-modal').style.display = 'flex';
+            } else {
+                btn.innerHTML = "🔑 Admin Login";
+                btn.onclick = window.openLoginModal;
+            }
+        }
+        loadProjects();
+    });
+
+    async function loadProjects() {
+        const container = document.getElementById("projects-container");
+        if (!container) return;
+
+        try {
+            const querySnapshot = await getDocs(collection(db, "projects"));
+            container.innerHTML = "";
+
+            querySnapshot.forEach((documentCard) => {
+                const data = documentCard.data();
+                const id = documentCard.id;
+                const projectCard = `
+                    <div class="project-card" style="position: relative;">
+                        ${currentUser ? `<button onclick="window.deleteProject('${id}')" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer;">🗑️</button>` : ''}
+                        <div class="project-tags">${data.tech || ''}</div>
+                        <h3>${data.title}</h3>
+                        <p>${data.desc}</p>
+                        <div class="project-links">
+                            ${data.github ? `<a href="${data.github}" target="_blank">GitHub ↗</a>` : ''}
+                            ${data.demo ? `<a href="${data.demo}" target="_blank">Live Demo ↗</a>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += projectCard;
+            });
+        } catch (e) {
+            console.error("Loyihalarni yuklashda xatolik:", e);
+        }
+    }
+</script>
 </body>
 </html>
