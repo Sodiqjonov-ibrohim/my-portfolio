@@ -33,14 +33,14 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
+   <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AiZaSyA7PKYEX55qjNWaIsVHzKw-egyFNYnZeJI",
+            apiKey: "AIzaSyA7PKYEX55qjNWaIsVHzKw-egyFNYnZeJI",
             authDomain: "ibrohim-portfolio.firebaseapp.com",
             projectId: "ibrohim-portfolio",
             storageBucket: "ibrohim-portfolio.firebasestorage.app",
@@ -54,8 +54,8 @@
         const db = getFirestore(app);
 
         window.login = async () => {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
+            const e = document.getElementById('email').value.trim();
+            const p = document.getElementById('password').value.trim();
             try {
                 await signInWithEmailAndPassword(auth, e, p);
                 document.getElementById('login-box').classList.add('hidden');
