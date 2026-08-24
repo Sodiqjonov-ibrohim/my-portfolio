@@ -25,13 +25,19 @@
 
     <!-- Navigatsiya -->
     <nav class="navbar">
-        <div class="logo">&lt;Dev/&gt;</div>
+        <div class="logo">&lt;Ibrohim/Dev&gt;</div>
         <ul class="nav-links">
             <li><a href="#about">Men haqimda</a></li>
             <li><a href="#skills">Ko'nikmalar</a></li>
             <li><a href="#projects">Loyihalar</a></li>
             <li><a href="#contact">Aloqa</a></li>
         </ul>
+        <!-- Til almashtirgich -->
+    <div class="lang-switcher" style="display: flex; gap: 8px; margin-left: 15px;">
+        <button onclick="window.switchLanguage('uz')" class="lang-btn active" id="btn-uz">UZ</button>
+        <button onclick="window.switchLanguage('ja')" class="lang-btn" id="btn-ja">JP 🇯🇵</button>
+        <button onclick="window.switchLanguage('en')" class="lang-btn" id="btn-en">EN 🇬🇧</button>
+    </div>
     </nav>
 
     <!-- Hero / Bosh bo'lim -->
@@ -290,6 +296,84 @@
         }
 
         loadSiteContent();
+        // Hozirgi tanlangan til (Standart: uz)
+let currentLang = localStorage.getItem('site_lang') || 'uz';
+
+// Tarjima qiluvchi yordamchi funksiya
+async function translateText(text, targetLang) {
+    if (!text || text.trim() === '') return text;
+    try {
+        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=uz|${targetLang}`);
+        const data = await res.json();
+        return data.responseData.translatedText || text;
+    } catch (e) {
+        console.error("Tarjima xatosi:", e);
+        return text;
+    }
+}
+
+// Tilni almashtirish funksiyasi
+window.switchLanguage = async (lang) => {
+    currentLang = lang;
+    localStorage.setItem('site_lang', lang);
+    
+    // Tugmalar stili
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.getElementById(`btn-${lang}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // Firestore'dan mos dildagi ma'lumotni yuklash
+    await loadSiteContent();
+    await loadProjects();
+};
+
+// Matnlarni saqlashda 3 ta tilda saqlash (Avto-Tarjima)
+window.saveAllContent = async () => {
+    const editables = document.querySelectorAll('[data-editable="true"]');
+    const contentUZ = {};
+    const contentJA = {};
+    const contentEN = {};
+
+    alert("Matnlar Yapon va Ingliz tillariga tarjima qilinmoqda, ozgina kuting...");
+
+    for (let el of editables) {
+        if (el.id) {
+            const uzText = el.innerText.trim();
+            contentUZ[el.id] = uzText;
+            
+            // Avtomatik tarjima qilish
+            contentJA[el.id] = await translateText(uzText, 'ja');
+            contentEN[el.id] = await translateText(uzText, 'en');
+        }
+    }
+
+    try {
+        await setDoc(doc(db, "site_content", "uz"), contentUZ);
+        await setDoc(doc(db, "site_content", "ja"), contentJA);
+        await setDoc(doc(db, "site_content", "en"), contentEN);
+        
+        alert("Barcha matnlar 3 ta tilda (UZ, JP, EN) muvaffaqiyatli saqlandi va tarjima qilindi! 🚀");
+    } catch (e) {
+        alert("Saqlashda xatolik: " + e.message);
+    }
+};
+
+// Matnlarni Firestore'dan yuklash (Tanlangan dil bo'yicha)
+async function loadSiteContent() {
+    try {
+        const docRef = doc(db, "site_content", currentLang);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            Object.keys(data).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = data[id];
+            });
+        }
+    } catch (e) {
+        console.error("Matnlarni yuklashda xatolik:", e);
+    }
+}
     </script>
 </body>
 </html>

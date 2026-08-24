@@ -215,3 +215,20 @@ footer {
     color: var(--text-muted);
     font-size: 0.85rem;
 }
+.lang-btn {
+    background: transparent;
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.lang-btn:hover, .lang-btn.active {
+    background: #0070f3;
+    color: white;
+    border-color: #0070f3;
+}
