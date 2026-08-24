@@ -124,16 +124,18 @@
         document.getElementById('project-modal').style.display = 'none';
     };
 
-    window.adminLogin = async () => {
-        const email = document.getElementById('modal-email').value.trim();
-        const pass = document.getElementById('modal-pass').value.trim();
-        try {
-            await signInWithEmailAndPassword(auth, email, pass);
-            window.closeLoginModal();
-        } catch (e) {
-            alert("Xatolik: " + e.message);
-        }
-    };
+   window.adminLogin = async () => {
+    const email = document.getElementById('modal-email').value.trim();
+    const pass = document.getElementById('modal-pass').value.trim();
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        window.closeLoginModal();
+        alert("Xush kelibsiz!");
+    } catch (e) {
+        console.error("Firebase Error Full:", e);
+        alert("Xatolik kodi: " + e.code + "\nBatafsil: " + e.message);
+    }
+};
 
     window.saveProject = async () => {
         try {
