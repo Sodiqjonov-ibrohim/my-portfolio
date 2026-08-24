@@ -232,3 +232,44 @@ footer {
     color: white;
     border-color: #0070f3;
 }
+/* Mobil qurilmalar uchun moslashuvchanlik (Responsive CSS) */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column !important;
+        gap: 12px;
+        padding: 15px !important;
+    }
+
+    .nav-links {
+        padding: 0;
+        margin: 0;
+        gap: 10px !important;
+        font-size: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .lang-switcher {
+        margin-top: 5px;
+    }
+
+    .hero h1 {
+        font-size: 26px !important;
+    }
+
+    .hero-btns {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-btns .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    #admin-controls {
+        bottom: 15px !important;
+        right: 15px !important;
+        flex-direction: column;
+    }
+}
