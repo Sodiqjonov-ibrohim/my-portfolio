@@ -355,6 +355,50 @@
         if (activeBtn) activeBtn.classList.add('active');
 
         loadSiteContent();
+        // Admin Logout (Chiqish) funksiyasi
+window.logoutAdmin = async () => {
+    try {
+        await auth.signOut();
+        alert("Admin rejimidan chiqdingiz!");
+        window.location.reload();
+    } catch (e) {
+        alert("Chiqishda xatolik: " + e.message);
+    }
+};
+
+// Auth holatini kuzatish
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    const btn = document.getElementById('auth-btn');
+    const adminControls = document.getElementById('admin-controls');
+
+    if (btn) {
+        if (user) {
+            // Admin kirgan bo'lsa: "Chiqish" tugmasini ham qo'shamiz
+            btn.innerHTML = "➕ Loyiha Qo'shish";
+            btn.onclick = () => document.getElementById('project-modal').style.display = 'flex';
+            
+            // Chiqish tugmasi mavjud bo'lmasa, uni yaratamiz
+            if (!document.getElementById('logout-btn')) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.id = 'logout-btn';
+                logoutBtn.innerHTML = '🚪 Chiqish';
+                logoutBtn.style.cssText = 'padding: 10px 18px; border-radius: 20px; background: #ef4444; color: white; border: none; cursor: pointer; font-weight: bold;';
+                logoutBtn.onclick = window.logoutAdmin;
+                adminControls.appendChild(logoutBtn);
+            }
+        } else {
+            // Oddiy foydalanuvchi bo'lsa
+            btn.innerHTML = "🔑 Admin Login";
+            btn.onclick = window.openLoginModal;
+            
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) logoutBtn.remove();
+        }
+    }
+    setEditingMode(!!user);
+    loadProjects();
+});
     </script>
 </body>
 </html>
