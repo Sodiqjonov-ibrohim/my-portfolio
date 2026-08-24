@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio | Dasturchi</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Admin tahrir qilayotgan matnlar stili */
         .admin-editable-active {
             outline: 2px dashed #0070f3;
             outline-offset: 4px;
@@ -19,28 +17,44 @@
             background-color: rgba(0, 112, 243, 0.1);
             cursor: text;
         }
+        .lang-btn {
+            background: transparent;
+            border: 1px solid #444;
+            color: #ccc;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            background: #0070f3;
+            color: white;
+            border-color: #0070f3;
+        }
     </style>
 </head>
 <body>
 
     <!-- Navigatsiya -->
-    <nav class="navbar">
-        <div class="logo">&lt;Ibrohim/Dev&gt;</div>
-        <ul class="nav-links">
+    <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="logo">&lt;Dev/&gt;</div>
+        <ul class="nav-links" style="display: flex; list-style: none; gap: 15px; align-items: center;">
             <li><a href="#about">Men haqimda</a></li>
             <li><a href="#skills">Ko'nikmalar</a></li>
             <li><a href="#projects">Loyihalar</a></li>
             <li><a href="#contact">Aloqa</a></li>
         </ul>
         <!-- Til almashtirgich -->
-    <div class="lang-switcher" style="display: flex; gap: 8px; margin-left: 15px;">
-        <button onclick="window.switchLanguage('uz')" class="lang-btn active" id="btn-uz">UZ</button>
-        <button onclick="window.switchLanguage('ja')" class="lang-btn" id="btn-ja">JP 🇯🇵</button>
-        <button onclick="window.switchLanguage('en')" class="lang-btn" id="btn-en">EN 🇬🇧</button>
-    </div>
+        <div class="lang-switcher" style="display: flex; gap: 8px;">
+            <button onclick="window.switchLanguage('uz')" class="lang-btn active" id="btn-uz">UZ</button>
+            <button onclick="window.switchLanguage('ja')" class="lang-btn" id="btn-ja">JP 🇯🇵</button>
+            <button onclick="window.switchLanguage('en')" class="lang-btn" id="btn-en">EN 🇬🇧</button>
+        </div>
     </nav>
 
-    <!-- Hero / Bosh bo'lim -->
+    <!-- Hero -->
     <header class="hero">
         <div class="container">
             <span class="badge" id="hero-badge" data-editable="true">Universitet Bitiruvchisi & Software Engineer</span>
@@ -64,7 +78,7 @@
         </div>
     </section>
 
-    <!-- Ko'nikmalar / Stack -->
+    <!-- Ko'nikmalar -->
     <section id="skills" class="section container">
         <h2 id="skills-heading" data-editable="true">Texnologiyalar</h2>
         <div class="skills-grid">
@@ -83,12 +97,10 @@
         </div>
     </section>
 
-   <!-- Loyihalar -->
+    <!-- Loyihalar -->
     <section id="projects" class="section container">
         <h2 id="projects-heading" data-editable="true">Saralangan Loyihalar</h2>
-        <div class="projects-grid" id="projects-container">
-            <!-- Admin paneldan qo'shilgan loyihalar Firebase orqali avtomatik shu yerga tushadi -->
-        </div>
+        <div class="projects-grid" id="projects-container"></div>
     </section>
 
     <!-- Aloqa -->
@@ -108,7 +120,7 @@
 
     <!-- Admin Boshqaruv Tugmalari -->
     <div id="admin-controls" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px;">
-        <button id="save-content-btn" onclick="window.saveAllContent()" style="display: none; padding: 10px 18px; border-radius: 20px; background: #10b981; color: white; border: none; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">💾 Saqlash</button>
+        <button id="save-content-btn" onclick="window.saveAllContent()" style="display: none; padding: 10px 18px; border-radius: 20px; background: #10b981; color: white; border: none; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">💾 Saqlash va Tarjima</button>
         <button id="auth-btn" style="padding: 10px 18px; border-radius: 20px; background: #0070f3; color: white; border: none; cursor: pointer; font-weight: bold;">🔑 Admin Login</button>
     </div>
 
@@ -123,7 +135,7 @@
         </div>
     </div>
 
-    <!-- Yangi Loyiha Qo'shish Modali -->
+    <!-- Loyiha Modali -->
     <div id="project-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
         <div style="background: #111; padding: 30px; border-radius: 12px; border: 1px solid #333; width: 400px;">
             <h3 style="margin-top:0; color:white;">Yangi Loyiha Qo'shish</h3>
@@ -136,6 +148,8 @@
             <button onclick="window.closeProjectModal()" style="width: 100%; padding: 8px; margin-top: 8px; background: transparent; color: #888; border: none; cursor: pointer;">Bekor qilish</button>
         </div>
     </div>
+
+    <script src="script.js"></script>
 
     <!-- Firebase va Boshqaruv Skripti -->
     <script type="module">
@@ -156,11 +170,37 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         let currentUser = null;
+        let currentLang = localStorage.getItem('site_lang') || 'uz';
 
         // Modal boshqaruvi
         window.openLoginModal = () => document.getElementById('login-modal').style.display = 'flex';
         window.closeLoginModal = () => document.getElementById('login-modal').style.display = 'none';
         window.closeProjectModal = () => document.getElementById('project-modal').style.display = 'none';
+
+        // Tarjima funksiyasi
+        async function translateText(text, targetLang) {
+            if (!text || text.trim() === '') return text;
+            try {
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=uz|${targetLang}`);
+                const data = await res.json();
+                return data.responseData.translatedText || text;
+            } catch (e) {
+                return text;
+            }
+        }
+
+        // Tilni almashtirish
+        window.switchLanguage = async (lang) => {
+            currentLang = lang;
+            localStorage.setItem('site_lang', lang);
+            
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`btn-${lang}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            await loadSiteContent();
+            await loadProjects();
+        };
 
         // Admin Login
         window.adminLogin = async () => {
@@ -174,7 +214,7 @@
             }
         };
 
-        // Loyiha Qo'shish & O'chirish
+        // Loyiha Saqlash
         window.saveProject = async () => {
             try {
                 await addDoc(collection(db, "projects"), {
@@ -192,6 +232,7 @@
             }
         };
 
+        // Loyiha O'chirish
         window.deleteProject = async (id) => {
             if (confirm("Ushbu loyihani o'chirmoqchimisiz?")) {
                 await deleteDoc(doc(db, "projects", id));
@@ -199,10 +240,38 @@
             }
         };
 
-        // Matnlarni Firestore'dan yuklash
+        // Barcha matnlarni saqlash va avto-tarjima
+        window.saveAllContent = async () => {
+            const editables = document.querySelectorAll('[data-editable="true"]');
+            const contentUZ = {};
+            const contentJA = {};
+            const contentEN = {};
+
+            alert("Matnlar yapon va ingliz tillariga tarjima qilinmoqda, ozgina kuting...");
+
+            for (let el of editables) {
+                if (el.id) {
+                    const uzText = el.innerText.trim();
+                    contentUZ[el.id] = uzText;
+                    contentJA[el.id] = await translateText(uzText, 'ja');
+                    contentEN[el.id] = await translateText(uzText, 'en');
+                }
+            }
+
+            try {
+                await setDoc(doc(db, "site_content", "uz"), contentUZ);
+                await setDoc(doc(db, "site_content", "ja"), contentJA);
+                await setDoc(doc(db, "site_content", "en"), contentEN);
+                alert("Matnlar 3 ta tilda (UZ, JP, EN) muvaffaqiyatli saqlandi va tarjima qilindi! 🚀");
+            } catch (e) {
+                alert("Saqlashda xatolik: " + e.message);
+            }
+        };
+
+        // Matnlarni yuklash
         async function loadSiteContent() {
             try {
-                const docRef = doc(db, "site_content", "main");
+                const docRef = doc(db, "site_content", currentLang);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
@@ -215,22 +284,6 @@
                 console.error("Matnlarni yuklashda xatolik:", e);
             }
         }
-
-        // Matnlarni Tahrirlash va Saqlash
-        window.saveAllContent = async () => {
-            const editables = document.querySelectorAll('[data-editable="true"]');
-            const data = {};
-            editables.forEach(el => {
-                if (el.id) data[el.id] = el.innerHTML;
-            });
-
-            try {
-                await setDoc(doc(db, "site_content", "main"), data);
-                alert("Barcha matnlar saqlandi! 🚀");
-            } catch (e) {
-                alert("Saqlashda xatolik: " + e.message);
-            }
-        };
 
         function setEditingMode(isAdmin) {
             const editables = document.querySelectorAll('[data-editable="true"]');
@@ -249,7 +302,7 @@
             if (saveBtn) saveBtn.style.display = isAdmin ? 'block' : 'none';
         }
 
-        // Auth holatini kuzatish
+        // Auth holati
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const btn = document.getElementById('auth-btn');
@@ -266,6 +319,7 @@
             loadProjects();
         });
 
+        // Loyihalarni yuklash
         async function loadProjects() {
             const container = document.getElementById("projects-container");
             if (!container) return;
@@ -295,85 +349,12 @@
             }
         }
 
+        // Boshlang'ich sozlamalar
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        const activeBtn = document.getElementById(`btn-${currentLang}`);
+        if (activeBtn) activeBtn.classList.add('active');
+
         loadSiteContent();
-        // Hozirgi tanlangan til (Standart: uz)
-let currentLang = localStorage.getItem('site_lang') || 'uz';
-
-// Tarjima qiluvchi yordamchi funksiya
-async function translateText(text, targetLang) {
-    if (!text || text.trim() === '') return text;
-    try {
-        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=uz|${targetLang}`);
-        const data = await res.json();
-        return data.responseData.translatedText || text;
-    } catch (e) {
-        console.error("Tarjima xatosi:", e);
-        return text;
-    }
-}
-
-// Tilni almashtirish funksiyasi
-window.switchLanguage = async (lang) => {
-    currentLang = lang;
-    localStorage.setItem('site_lang', lang);
-    
-    // Tugmalar stili
-    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-    const activeBtn = document.getElementById(`btn-${lang}`);
-    if (activeBtn) activeBtn.classList.add('active');
-
-    // Firestore'dan mos dildagi ma'lumotni yuklash
-    await loadSiteContent();
-    await loadProjects();
-};
-
-// Matnlarni saqlashda 3 ta tilda saqlash (Avto-Tarjima)
-window.saveAllContent = async () => {
-    const editables = document.querySelectorAll('[data-editable="true"]');
-    const contentUZ = {};
-    const contentJA = {};
-    const contentEN = {};
-
-    alert("Matnlar Yapon va Ingliz tillariga tarjima qilinmoqda, ozgina kuting...");
-
-    for (let el of editables) {
-        if (el.id) {
-            const uzText = el.innerText.trim();
-            contentUZ[el.id] = uzText;
-            
-            // Avtomatik tarjima qilish
-            contentJA[el.id] = await translateText(uzText, 'ja');
-            contentEN[el.id] = await translateText(uzText, 'en');
-        }
-    }
-
-    try {
-        await setDoc(doc(db, "site_content", "uz"), contentUZ);
-        await setDoc(doc(db, "site_content", "ja"), contentJA);
-        await setDoc(doc(db, "site_content", "en"), contentEN);
-        
-        alert("Barcha matnlar 3 ta tilda (UZ, JP, EN) muvaffaqiyatli saqlandi va tarjima qilindi! 🚀");
-    } catch (e) {
-        alert("Saqlashda xatolik: " + e.message);
-    }
-};
-
-// Matnlarni Firestore'dan yuklash (Tanlangan dil bo'yicha)
-async function loadSiteContent() {
-    try {
-        const docRef = doc(db, "site_content", currentLang);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            Object.keys(data).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.innerHTML = data[id];
-            });
-        }
-    } catch (e) {
-        console.error("Matnlarni yuklashda xatolik:", e);
-    }
-}
     </script>
 </body>
 </html>
